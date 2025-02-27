@@ -1,4 +1,5 @@
 #Fazendo conexão com o banco
+import __main__
 from pymongo.mongo_client import MongoClient
 import requests
 
@@ -28,7 +29,7 @@ def create_collection(name_collection,db):
 
 #Extraindo dados da api
 def extract_api(url):
-    response = requests.get("https://apps.tre-rj.jus.br/api-dados-abertos/locaisvotacao")
+    response = requests.get(url)
     data = response.json()
     
     return data;
@@ -37,10 +38,14 @@ def extract_api(url):
 #Salvando dados no banco
 def salve_data_mongo_db(data,collection):
     docs = collection.insert_many(data)
-    count_data_inserted = docs.insertd_ids
-
-    return f'Quantidade de dados inseridos: {count_data_inserted}'
+    
 
 
-
+if __name__ == "__main__":
+    client  = connect_mongo_db("mongodb://localhost:27017/")
+    db = create_db("db_eleicao_pe",client)
+    collection = create_collection("locais-pe-votacao",db)
+    data = extract_api("https://apps.tre-pe.jus.br/locaisVotacao/locais")   
+    docs = salve_data_mongo_db(data,collection)
+    client.close()
 
